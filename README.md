@@ -46,7 +46,7 @@ Options:
 ## `changelog-draft`
 
 ```
-changelog-draft [options] -o changelog-draft.md
+changelog-draft
 
 Generate a draft changelog entry using changes to master since the most recent
 release.
@@ -59,8 +59,8 @@ Options:
   -p, --previous  the previous release; defaults to the most recent vX.Y.Z tag
                                                                         [string]
   -f, --format    output format          [choices: "md", "json"] [default: "md"]
-  -r, --repo      the github repository, in "owner/repository"
-                                       [string] [default: "mapbox/mapbox-gl-js"]
+  -r, --repo      the github repository, in "owner/repository" form. Defaults to
+                  the repository found in the current directory.        [string]
   -o, --output    the output file                                       [string]
 ```
 
