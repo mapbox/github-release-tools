@@ -1,0 +1,120 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const [defaultRepo, defaultOwner] = [process.cwd(), path.resolve(process.cwd(), '..')]
+    .map(d => path.basename(d));
+
+const argv = require('yargs')
+    .usage('$0 [options] -o changelog-draft.md', 'Generate a draft changelog entry using changes to master since the most recent release.')
+    .options({
+        'b': {
+            describe: 'the branch from which this release is being made',
+            alias: 'branch',
+            default: 'master',
+            type: 'string'
+        },
+        'p': {
+            describe: 'the previous release; defaults to the most recent vX.Y.Z tag',
+            alias: 'previous',
+            type: 'string'
+        },
+        'f': {
+            describe: 'output format',
+            alias: 'format',
+            default: 'md',
+            choices: ['md', 'json']
+        },
+        'r': {
+            describe: 'the github repository, in "owner/repository"',
+            alias: 'repo',
+            default: `${defaultOwner}/${defaultRepo}`,
+            type: 'string'
+        },
+        'o': {
+            describe: 'the output file',
+            alias: 'output',
+            type: 'string'
+        }
+    }).argv;
+
+const octokit = require('../src/octokit');
+const getChangelogData = require('../src/get-changelog-data');
+const getLatestRelease = require('../src/get-latest-release');
+const {commitSummary} = require('../src/render');
+
+const token = process.env.GITHUB_TOKEN;
+if (!token) {
+    console.error('GITHUB_TOKEN must be set');
+    process.exit(1);
+}
+octokit.authenticate({ type: 'token', token });
+
+(async function main() {
+    const [owner, repo] = argv.r.split('/');
+    console.error(`Repository: ${owner}/${repo}`);
+    const branch = argv.branch;
+    const previous = argv.previous || await getLatestRelease({repo, owner});
+    console.error(`Changes: ${previous}...${branch}`);
+    const log = await getChangelogData({repo, owner, previousRelease: previous, branch});
+
+    const rendered = argv.f === 'json' ? JSON.stringify(log) : renderChangelogDraft(log);
+
+    if (argv.o) {
+        fs.writeFileSync(argv.o, rendered);
+    } else {
+        console.log(rendered);
+    }
+})();
+
+function renderChangelogDraft(log) {
+    let output = '';
+    const sections = {
+        breaking: {title: 'Breaking changes', commits: []},
+        bugs: {title: 'Bug fixes', commits: []},
+        improvements: {title: 'Features and improvements', commits: []},
+        other: {title: 'UNCATEGORIZED', commits: []},
+        maybeInternal: {title: 'MAYBE INTERNAL (workflow changes, issues filed since last release)', commits: []}
+    };
+
+    for (const commit of log) {
+        let labels = new Set(commit.pr ? commit.pr.labels : []);
+        for (const issue of commit.issues) {
+            for (const label of issue.labels) {
+                labels.add(label);
+            }
+        }
+
+        labels = [...labels].join(' ');
+
+        const maybeInternal = commit.issues.length && commit.issues.every(i => i.predatesLastRelease);
+
+        let section = 'other';
+        if (/breaking/.test(labels)) {
+            section = 'breaking';
+        } else if (maybeInternal) {
+            section = 'maybeInternal';
+        } else if (/bug/.test(labels)) {
+            section = 'bugs';
+        } else if (/feature|docs|performance/.test(labels)) {
+            section = 'improvements';
+        } else if (/workflow|testing/.test(labels)) {
+            section = 'maybeInternal';
+        }
+
+        sections[section].commits.push(commit);
+    }
+
+    for (const key in sections) {
+        const section = sections[key];
+        output += `\n\n## ${section.title}\n`;
+        for (const commit of section.commits) {
+            output += commitSummary(commit)
+                .split('\n')
+                .map((line, i) => i === 0 ? `* ${line}` : `  ${line}`)
+                .join('\n') + '\n';
+        }
+    }
+
+    return output;
+}

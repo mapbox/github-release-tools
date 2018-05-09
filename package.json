@@ -1,0 +1,15 @@
+{
+  "name": "@mapbox/github-release-tools",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^15.2.7",
+    "bottleneck": "^2.3.0",
+    "latest-semver": "^1.0.0",
+    "yargs": "^11.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1"
+  }
+}
