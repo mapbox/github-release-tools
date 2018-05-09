@@ -1,5 +1,3 @@
-const octokit = require('./octokit');
-
 /*::
 type Commit = {
     sha: string,
@@ -33,14 +31,14 @@ type Commit = {
 */
 
 /*
-Create an annotated log of changes from `previousRelease...branch`. Returns
+Create an annotated log of changes from `previous...branch`. Returns
 an array of Commit objects.
 */
-module.exports = async function getChangelogData({repo, owner, previousRelease, branch}) {
-    const log = await getCommits({repo, owner, base: previousRelease, head: branch});
+module.exports = async function getChangelogData(octokit, {repo, owner, previous, branch}) {
+    const log = await getCommits(octokit, {repo, owner, base: previous, head: branch});
     const firstCommit = await octokit.repos.getCommit({owner, repo, sha: log[0].sha});
     const previousReleaseDate = firstCommit.data.commit.committer.date;
-    const prs = await fetchPrs({repo, owner, since: previousReleaseDate, base: branch});
+    const prs = await fetchPrs(octokit, {repo, owner, since: previousReleaseDate, base: branch});
     const issueCache = new Map();
 
     for (const commit of log) {
@@ -114,7 +112,7 @@ module.exports = async function getChangelogData({repo, owner, previousRelease, 
 };
 
 // Equivalent to `git log base..head`
-async function getCommits({owner, repo, base, head}) {
+async function getCommits(octokit, {owner, repo, base, head}) {
     let response = await octokit.repos.compareCommits({
         owner,
         repo,
@@ -122,7 +120,7 @@ async function getCommits({owner, repo, base, head}) {
         head,
         headers: { accept: 'application/vnd.github.v3.sha' }
     });
-    
+
     let {commits} = response.data;
     if (response.data.total_commits > commits.length) {
         console.error(`Warning: ${head} is ahead of ${base} by ${response.data.total_commits}, but only ${commits.length} are included in the result.`);
@@ -137,7 +135,7 @@ async function getCommits({owner, repo, base, head}) {
 }
 
 // Fetch all PRs updated since `since`
-async function fetchPrs({repo, owner, since}) {
+async function fetchPrs(octokit, {repo, owner, since}) {
     let response = await octokit.pullRequests.getAll({
         owner,
         repo,
