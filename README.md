@@ -9,6 +9,10 @@ release processes.
 npm install -g @mapbox/github-release-tools
 ```
 
+## Configuration
+
+Create a [personal Github access token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/) and set the value to the `GITHUB_TOKEN` environment variable.
+
 ## `backport`
 
 ```
@@ -63,4 +67,3 @@ Options:
                   the repository found in the current directory.        [string]
   -o, --output    the output file                                       [string]
 ```
-
