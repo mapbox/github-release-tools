@@ -13,19 +13,21 @@ module.exports = async function ({change, branch}) {
     const prData = (await octokit.pullRequests.get({owner, repo, number})).data;
     const prReviews = (await octokit.pullRequests.getReviews({owner, repo, number})).data;
     const prPatch = (await octokit.pullRequests.get({owner, repo, number, headers: {accept: 'application/vnd.github.v3.patch'}})).data;
+    const prSlug = branch.replace(/^release-/, '');
+    const prBranch = `backport-${prSlug}-${number}-${prData.head.ref}`;
 
-    execSync(`git branch --no-track backport-${number} origin/${branch}`);
-    execSync(`git checkout backport-${number}`);
+    execSync(`git branch --no-track ${prBranch} origin/${branch}`);
+    execSync(`git checkout ${prBranch}`);
     execSync(`git am`, {input: prPatch});
-    execSync(`git push origin --set-upstream backport-${number}`);
+    execSync(`git push origin --set-upstream ${prBranch}`);
 
     const result = (await octokit.pullRequests.create({
         owner,
         repo,
-        title: `${branch} backport: ${prData.title}`,
-        head: `backport-${number}`,
+        title: `${prSlug} backport: ${prData.title}`,
+        head: prBranch,
         base: branch,
-        body: `Backports #${number} to ${branch}\n----\n${prData.body}`
+        body: `Backports #${number} to [\`${branch}\`](https://github.com/${owner}/${repo}/tree/${branch})\n\n---\n\n${prData.body}`
     })).data;
 
     await octokit.pullRequests.createReviewRequest({
