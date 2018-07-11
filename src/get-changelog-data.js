@@ -152,7 +152,7 @@ async function fetchPrs(octokit, {repo, owner, since}) {
 
     const result = new Map();
     for (const pr of data) {
-        if (!pr.merge_commit_sha) continue;
+        if (!pr.merge_commit_sha || !pr.merged_at || pr.merged_at < since) continue;
         result.set(pr.merge_commit_sha, pr);
     }
 
