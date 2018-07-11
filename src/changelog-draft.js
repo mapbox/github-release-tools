@@ -19,8 +19,8 @@ function render(log) {
     let output = '';
     const sections = {
         breaking: {title: 'Breaking changes', commits: []},
-        bugs: {title: 'Bug fixes', commits: []},
         improvements: {title: 'Features and improvements', commits: []},
+        bugs: {title: 'Bug fixes', commits: []},
         other: {title: 'UNCATEGORIZED', commits: []},
         maybeInternal: {title: 'MAYBE INTERNAL (workflow changes, issues filed since last release)', commits: []}
     };
