@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
+const prependFile = require('prepend-file');
 const octokit = require('../src/octokit');
 const renderChangelogDraft = require('../src/changelog-draft');
 
@@ -31,7 +31,7 @@ require('yargs').usage('$0', description, {
         type: 'string'
     },
     'o': {
-        describe: 'the output file',
+        describe: 'the output file. If it exists, output will be prepended to the existing contents.',
         alias: 'output',
         type: 'string'
     }
@@ -46,7 +46,7 @@ require('yargs').usage('$0', description, {
     const rendered = await renderChangelogDraft(octokit, argv);
 
     if (argv.o) {
-        fs.writeFileSync(argv.o, rendered);
+        prependFile.sync(argv.o, rendered);
     } else {
         console.log(rendered);
     }
