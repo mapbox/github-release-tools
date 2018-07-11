@@ -1,6 +1,5 @@
 const parse = require('parse-github-url');
 const octokit = require('@octokit/rest')();
-const git = require('nodegit');
 const {execSync} = require('child_process');
 
 module.exports = async function ({change, branch}) {
@@ -15,10 +14,8 @@ module.exports = async function ({change, branch}) {
     const prReviews = (await octokit.pullRequests.getReviews({owner, repo, number})).data;
     const prPatch = (await octokit.pullRequests.get({owner, repo, number, headers: {accept: 'application/vnd.github.v3.patch'}})).data;
 
-    const repository = await git.Repository.open('.');
-    await repository.createBranch(`backport-${number}`, await repository.getBranchCommit(branch));
-    await repository.checkoutBranch(`backport-${number}`);
-
+    execSync(`git branch backport-${number} ${branch}`);
+    execSync(`git checkout backport-${number}`);
     execSync(`git am`, {input: prPatch});
     execSync(`git push origin --set-upstream backport-${number}`);
 
