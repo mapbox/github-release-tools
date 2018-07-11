@@ -14,7 +14,7 @@ module.exports = async function ({change, branch}) {
     const prReviews = (await octokit.pullRequests.getReviews({owner, repo, number})).data;
     const prPatch = (await octokit.pullRequests.get({owner, repo, number, headers: {accept: 'application/vnd.github.v3.patch'}})).data;
 
-    execSync(`git branch backport-${number} ${branch}`);
+    execSync(`git branch backport-${number} origin/${branch}`);
     execSync(`git checkout backport-${number}`);
     execSync(`git am`, {input: prPatch});
     execSync(`git push origin --set-upstream backport-${number}`);
