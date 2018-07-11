@@ -23,7 +23,7 @@ exports.commitSummary = function commitSummary(commit) {
 
 function formatIssue(issue) {
     const pr = issue.pr;
-    const prRef = pr ? `, fixed by [#${pr.number}](${pr.url})` : '';
+    const prRef = pr ? `, fixed by [#${pr.number}](${pr.html_url})` : '';
     let labels = '';
     if (issue.labels && issue.labels.length) {
         labels = ' ' + issue.labels
