@@ -67,3 +67,20 @@ Options:
                   the repository found in the current directory.        [string]
   -o, --output    the output file                                       [string]
 ```
+
+## `branch-permissions`
+
+```
+branch-permissions <target> [source]
+
+Copies branch protection permissions from one branch to another.
+
+
+Positionals:
+  target  Branch to copy permissions to                                 [string]
+  source  Branch to copy permissions from           [string] [default: "master"]
+
+Options:
+  --version  Show version number                                       [boolean]
+  --help     Show help                                                 [boolean]
+```
