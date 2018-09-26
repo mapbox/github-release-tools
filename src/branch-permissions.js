@@ -41,7 +41,7 @@ module.exports = async function ({target, source}) {
 
     console.log(`\n[%s] Require status checks to pass before merging`, result.required_status_checks ? 'X' : ' ');
     if (result.required_status_checks) {
-        console.log(`    [%s] Require status checks to pass before merging`, result.required_status_checks.strict ? 'X' : ' ');
+        console.log(`    [%s] Require branches to be up to date before merging`, result.required_status_checks.strict ? 'X' : ' ');
         if (result.required_status_checks.contexts.length) {
             console.log(`    Required status checks:`);
             for (const context of result.required_status_checks.contexts.sort()) {
