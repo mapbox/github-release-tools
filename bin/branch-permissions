@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+const description = `\
+Copies branch protection permissions from one branch to another.
+`;
+
+require('yargs')
+    .command('$0 <target> [source]', description, (yargs) => {
+        yargs.positional('target', {
+            describe: 'Branch to copy permissions to',
+            type: 'string'
+        });
+        yargs.positional('source', {
+            describe: 'Branch to copy permissions from',
+            type: 'string',
+            default: 'master'
+        });
+    }, require('../src/branch-permissions'))
+    .help()
+    .argv;
