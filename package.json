@@ -1,6 +1,7 @@
 {
   "name": "@mapbox/github-release-tools",
   "version": "1.2.0",
+  "engines" : { "node" : ">=8" },
   "bin": {
     "backport": "bin/backport",
     "branch-permissions": "bin/branch-permissions",
