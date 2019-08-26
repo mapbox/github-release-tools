@@ -3,16 +3,15 @@ const mockfs = require('mock-fs');
 
 const getRemoteUrl = require('../src/git-remote-url');
 
-test('githubRepoFromGit', (t) => {
+test('githubRepoFromGit', async (t) => {
     t.tearDown(() => mockfs.restore());
     mockfs({
-        '/test/.git/config': `[remote "origin"]
-    url = git@github.com:example/some-repository
-    fetch = +refs/heads/*:refs/remote/origin/*`
+        '/test/.git/config': '' +
+        '[remote "origin"]\n' +
+        '    url = git@github.com:example/some-repository\n' +
+        '    fetch = +refs/heads/*:refs/remote/origin/*'
     });
 
-    return getRemoteUrl('/test').then(result => {
-        t.equal(result, 'git@github.com:example/some-repository');
-        t.end();
-    });
+    const result = await getRemoteUrl('/test');
+    t.equal(result, 'git@github.com:example/some-repository');
 });
