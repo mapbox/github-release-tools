@@ -14,9 +14,9 @@ module.exports = async function(octokit, {repo: githubRepo, current, previous, f
     const {hasChangelog, needsChangelog, skipChangelog} = await getChangelogPullRequests(octokit, {repo, owner, previous, current});
     const entries = parseChangelogEntries(hasChangelog);
 
-    needsChangelogIds = needsChangelog.map(pr => pr.id);
-    console.error(`Found ${skipChangelog.length} skipped Pull Requests.`);
-    console.error(`Found ${needsChangelog.length} unskipped Pull Requests without entries: ${needsChangelogIds.join(', ')}`);
+    needsChangelogUrls = needsChangelog.map(pr => pr.html_url);
+    console.error(`Found ${skipChangelog.length} Pull Requests that skip changelogs.`);
+    console.error(`Found ${needsChangelog.length} Pull Requests that need changelogs:\n\t${needsChangelogUrls.join('\n\t')}`);
 
     const sections = categorizeEntries(entries);
     const formattedSections = renderSections(sections, format);
