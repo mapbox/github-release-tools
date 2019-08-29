@@ -2,12 +2,12 @@
 Find all Pull Requests merged in `current` release since `previous` release, ignoring any that were cherry-picked to previous release.
 Returns Pull Requests categorized by their changelog status: has changelog, needs changelog, and skipped changelog.
 */
-module.exports = async function getChangelogPullRequests(octokit, {repo, owner, previous, branch}) {
-    const log = await getCommits(octokit, {repo, owner, base: previous, head: branch});
-    const firstCommit = await octokit.repos.getCommit({owner, repo, sha: log[0].sha});
-    const previousReleaseDate = firstCommit.data.commit.committer.date;
+module.exports = async function getChangelogPullRequests(octokit, {repo, owner, previous, current}) {
+    const sharedBase = await findMergeBase(octokit, {repo, owner, base: previous, head: current});
+    const log = await getCommits(octokit, {repo, owner, base: sharedBase.sha, head: current});
+    const previousReleaseBranchDate = sharedBase.commit.committer.date;
     const pullRequestsSince = await fetchMergedPullRequestsSinceDate(octokit, {
-        repo, owner, since: previousReleaseDate, base: branch
+        repo, owner, since: previousReleaseBranchDate
     });
     const pullRequestsInBranch = [];
 
@@ -43,6 +43,18 @@ async function getCommits(octokit, {owner, repo, base, head}) {
     return commits;
 }
 
+async function findMergeBase(octokit, {owner, repo, base, head}) {
+    const response = await octokit.repos.compareCommits({
+        owner,
+        repo,
+        base,
+        head,
+        headers: { accept: 'application/vnd.github.v3.sha' }
+    });
+
+    return response.data.merge_base_commit;
+}
+
 async function fetchMergedPullRequestsSinceDate(octokit, {repo, owner, since}) {
     let response = await octokit.pullRequests.getAll({
         owner,
@@ -71,7 +83,18 @@ async function fetchMergedPullRequestsSinceDate(octokit, {repo, owner, since}) {
 function categorizePullRequests(pullRequests) {
     const hasChangelog = []
     const skipChangelog = [];
-    const needsChangelog = pullRequests;
+    const needsChangelog = [];
+
+    for (const pr of pullRequests) {
+        const labelNames = pr.labels.map(l => l.name);
+        if (labelNames.includes('skip changelog')) {
+            skipChangelog.push(pr);
+        } else if (labelNames.includes('needs changelog')) {
+            needsChangelog.push(pr);
+        } else {
+            hasChangelog.push(pr);
+        }
+    }
 
     return {hasChangelog, needsChangelog, skipChangelog};
 }

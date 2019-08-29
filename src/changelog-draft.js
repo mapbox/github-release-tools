@@ -1,68 +1,73 @@
 
 const parse = require('parse-github-url');
 const getRemoteUrl = require('../src/git-remote-url');
-const getChangelogData = require('../src/get-changelog-data');
+const getChangelogPullRequests = require('../src/get-changelog-pull-requests');
 const getLatestRelease = require('../src/get-latest-release');
-const {commitSummary} = require('../src/render');
+const renderSections = require('../src/render');
 
-module.exports = async function(octokit, {repo: githubRepo, branch, previous, format}) {
+module.exports = async function(octokit, {repo: githubRepo, current, previous, format}) {
     const {owner, name: repo} = parse(githubRepo || await getRemoteUrl());
     previous = previous || await getLatestRelease(octokit, {repo, owner});
 
-    console.error(`Changes: ${owner}/${repo} ${previous}...${branch}`);
+    console.error(`Changes: ${owner}/${repo} ${previous}...${current}`);
 
-    const log = await getChangelogData(octokit, {repo, owner, previous, branch});
-    return format === 'json' ? JSON.stringify(log) : render(log);
+    const {hasChangelog, needsChangelog, skipChangelog} = await getChangelogPullRequests(octokit, {repo, owner, previous, current});
+    const entries = parseChangelogEntries(hasChangelog);
+
+    needsChangelogIds = needsChangelog.map(pr => pr.id);
+    console.error(`Found ${skipChangelog.length} skipped Pull Requests.`);
+    console.error(`Found ${needsChangelog.length} unskipped Pull Requests without entries: ${needsChangelogIds.join(', ')}`);
+
+    const sections = categorizeEntries(entries);
+    const formattedSections = renderSections(sections, format);
+
+    return formattedSections;
 };
 
-function render(log) {
-    let output = '';
+function categorizeEntries(entries) {
     const sections = {
-        breaking: {title: 'Breaking changes', commits: []},
-        improvements: {title: 'Features and improvements', commits: []},
-        bugs: {title: 'Bug fixes', commits: []},
-        other: {title: 'UNCATEGORIZED', commits: []},
-        maybeInternal: {title: 'MAYBE INTERNAL (workflow changes, issues filed since last release)', commits: []}
+        breaking: {title: 'Breaking changes', entries: []},
+        improvements: {title: 'Features and improvements', entries: []},
+        bugs: {title: 'Bug fixes', entries: []},
+        other: {title: 'UNCATEGORIZED', entries: []},
+        maybeInternal: {title: 'MAYBE INTERNAL (workflow changes, issues filed since last release)', entries: []}
     };
 
-    for (const commit of log) {
-        let labels = new Set(commit.pr ? commit.pr.labels : []);
-        for (const issue of commit.issues) {
-            for (const label of issue.labels) {
-                labels.add(label);
-            }
-        }
-
-        labels = [...labels].join(' ');
-
-        const maybeInternal = commit.issues.length && commit.issues.every(i => i.predatesLastRelease);
-
-        let section = 'other';
-        if (/breaking/.test(labels)) {
+    for (const entry of entries) {
+        let label = entry.label;
+        if (label === 'breaking') {
             section = 'breaking';
-        } else if (maybeInternal) {
-            section = 'maybeInternal';
-        } else if (/bug/.test(labels)) {
+        } else if (label === 'bugs') {
             section = 'bugs';
-        } else if (/feature|docs|performance/.test(labels)) {
+        } else if (['feature','docs','performance'].includes(label)) {
             section = 'improvements';
-        } else if (/workflow|testing/.test(labels)) {
+        } else if (['workflow','testing'].includes(label)) {
             section = 'maybeInternal';
+        } else if (label === 'other') {
+            section = 'other';
+        } else {
+            throw new Error(`Unknown changelog entry label: ${label}`);
         }
 
-        sections[section].commits.push(commit);
+        sections[section].entries.push(entry);
     }
 
-    for (const key in sections) {
-        const section = sections[key];
-        output += `\n\n## ${section.title}\n`;
-        for (const commit of section.commits) {
-            output += commitSummary(commit)
-                .split('\n')
-                .map((line, i) => i === 0 ? `* ${line}` : `  ${line}`)
-                .join('\n') + '\n';
-        }
+    return sections;
+}
+
+function parseChangelogEntries(pullRequests) {
+    const entries = [];
+
+    for (const pr of pullRequests) {
+        const label = 'other';
+        const body = pr.body;
+        const entry = {
+            label: label,
+            body: pr.title,
+            pullRequest: pr,
+        };
+        entries.push(entry);
     }
 
-    return output;
+    return entries;
 }

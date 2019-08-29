@@ -1,35 +1,47 @@
+module.exports = function renderSections(sections, format = 'md') {
+    if (format === 'md') {
+        return renderSectionsMd(sections);
+    } else if (format === 'json') {
+        return renderSectionsJson(sections);
+    } else {
+        throw new Error(`Unknown format requested: ${format}`);
+    }
+}
 
+function renderSectionsMd(sections) {
+    let output = '';
 
-exports.commitSummary = function commitSummary(commit) {
-    const {issues, pr} = commit;
-    const title = pr ? formatIssue(pr) : `${commit.title} ([${commit.sha.slice(0, 7)}](${commit.url}))`;
+    for (const key in sections) {
+        const section = sections[key];
+        if  (section.entries.length > 0) {
+            output += `## ${section.title}\n`;
+            for (const entry of section.entries) {
+                output += renderEntryMd(entry)
+                output += '\n';
+            }
+            output += '\n\n';
+        }
+    }
 
+    return output;
+}
+
+function renderSectionsJson(sections) {
+    return JSON.stringify(sections);
+}
+
+function renderEntryMd(entry) {
+    const description = entry.body;
+    const pr = entry.pullRequest;
+    const prRef = ` ([#${pr.number}](${pr.html_url}))`;
     let hattip = '';
     if (pr && pr.user) {
-        hattip = ` (h/t [${pr.user.login}](${pr.user.url}))`;
+        hattip += ` (h/t [${pr.user.login}](${pr.user.url}))`;
     }
 
-    const fixed = issues.filter(i => i.type === 'fix');
-    if (fixed.length === 1) {
-        const issue = fixed[0];
-        return `${/^Fix/.test(issue.title) ? '' : 'Fix '}${formatIssue(issue)}${hattip}`;
-    } else if (fixed.length > 1) {
-        const issueList = fixed.map(i => `- ${formatIssue(i)}`).join('\n');
-        return `${title}${hattip}\n${issueList}`;
-    }
+    const output = `* ${description}${prRef}${hattip}`;
 
-    return `${title}${hattip}`;
-};
-
-function formatIssue(issue) {
-    const pr = issue.pr;
-    const prRef = pr ? `, fixed by [#${pr.number}](${pr.html_url})` : '';
-    let labels = '';
-    if (issue.labels && issue.labels.length) {
-        labels = ' ' + issue.labels
-            .map(l => `\`${l.replace(/:[a-zA-Z_]+:/g, '').trim()}\``)
-            .join(' ');
-    }
-    return `${issue.title}${labels} ([#${issue.number}](${issue.url})${prRef})`;
+    return output;
 }
+
 
