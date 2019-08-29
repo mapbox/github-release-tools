@@ -1,3 +1,4 @@
+// Sections are groups of changelog entries by category
 module.exports = function renderSections(sections, format = 'md') {
     if (format === 'md') {
         return renderSectionsMd(sections);
@@ -33,9 +34,11 @@ function renderSectionsJson(sections) {
 function renderEntryMd(entry) {
     const description = entry.body;
     const pr = entry.pullRequest;
+
     const prRef = ` ([#${pr.number}](${pr.html_url}))`;
+
     let hattip = '';
-    if (pr && pr.user) {
+    if (pr.head.user.login !== pr.base.user.login) {
         hattip += ` (h/t [${pr.user.login}](${pr.user.url}))`;
     }
 
