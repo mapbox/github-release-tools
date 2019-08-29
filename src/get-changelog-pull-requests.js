@@ -4,19 +4,22 @@ Returns Pull Requests categorized by their changelog status: has changelog, need
 */
 module.exports = async function getChangelogPullRequests(octokit, {repo, owner, previous, current}) {
     const sharedBase = await findMergeBase(octokit, {repo, owner, base: previous, head: current});
-    const log = await getCommits(octokit, {repo, owner, base: sharedBase.sha, head: current});
+    const currentLog = await getCommits(octokit, {repo, owner, base: sharedBase.sha, head: current});
+    const previousLog = await getCommits(octokit, {repo, owner, base: sharedBase.sha, head: previous});
     const previousReleaseBranchDate = sharedBase.commit.committer.date;
     const pullRequestsSince = await fetchMergedPullRequestsSinceDate(octokit, {
         repo, owner, since: previousReleaseBranchDate
     });
     const pullRequestsInBranch = [];
 
-    for (const commit of log) {
+    for (const commit of currentLog) {
         const includedPr = pullRequestsSince.find((pr) => {
             return pr.merge_commit_sha === commit.sha;
         });
 
-        if (includedPr) {
+        const previouslyCherryPicked = detectCherryPicksOfCommitWithinLog(commit, previousLog);
+
+        if (includedPr && !previouslyCherryPicked) {
             pullRequestsInBranch.push(includedPr);
         }
     }
@@ -78,6 +81,16 @@ async function fetchMergedPullRequestsSinceDate(octokit, {repo, owner, since}) {
     }
 
     return pullRequests;
+}
+
+// Heuristic used to detect cherry picks.
+// Search for a commit message as a substring within a log of commits.
+function detectCherryPicksOfCommitWithinLog(commit, log) {
+    const found = log.some((logCommit) => {
+        return logCommit.commit.message.includes(commit.commit.message);
+    });
+
+    return found;
 }
 
 function categorizePullRequests(pullRequests) {
