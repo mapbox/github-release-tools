@@ -25,7 +25,13 @@ module.exports = {
                 }
             }
 
-            const body = pr.title;
+            let body;
+            let matches = pr.body.match(/\<changelog\>(.*)<\/changelog>/);
+            if (matches) {
+                body = matches[1]
+            } else {
+                body = pr.title;
+            }
 
             const entry = {
                 label: foundLabel || null,
