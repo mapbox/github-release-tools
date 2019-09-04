@@ -2,6 +2,7 @@
 const parse = require('parse-github-url');
 const getRemoteUrl = require('../src/git-remote-url');
 const getChangelogPullRequests = require('../src/get-changelog-pull-requests');
+const {parseEntriesFromPullRequests, categorizeEntries} = require('../src/parse-and-categorize-changelog-entries');
 const getLatestRelease = require('../src/get-latest-release');
 const renderSections = require('../src/render');
 
@@ -11,63 +12,12 @@ module.exports = async function(octokit, {repo: githubRepo, current, previous, f
 
     console.error(`Changes: ${owner}/${repo} ${previous}...${current}`);
 
-    const {hasChangelog, needsChangelog, skipChangelog} = await getChangelogPullRequests(octokit, {repo, owner, previous, current});
-    const entries = parseChangelogEntries(hasChangelog);
-
-    needsChangelogUrls = needsChangelog.map(pr => pr.html_url);
-    console.error(`Found ${skipChangelog.length} Pull Requests that skip changelogs.`);
-    console.error(`Found ${needsChangelog.length} Pull Requests that need changelogs:\n\t${needsChangelogUrls.join('\n\t')}`);
-
+    const pullRequests = await getChangelogPullRequests(octokit, {repo, owner, previous, current});
+    const entries = parseEntriesFromPullRequests(pullRequests);
     const sections = categorizeEntries(entries);
+
+    console.error(`\nFound ${sections.skip.entries.length} Pull Requests that skip changelogs.\n`);
     const formattedSections = renderSections(sections, format);
 
     return formattedSections;
 };
-
-function categorizeEntries(entries) {
-    const sections = {
-        breaking: {title: 'Breaking changes', entries: []},
-        improvements: {title: 'Features and improvements', entries: []},
-        bugs: {title: 'Bug fixes', entries: []},
-        other: {title: 'UNCATEGORIZED', entries: []},
-        maybeInternal: {title: 'MAYBE INTERNAL (workflow changes, issues filed since last release)', entries: []}
-    };
-
-    for (const entry of entries) {
-        let label = entry.label;
-        if (label === 'breaking') {
-            section = 'breaking';
-        } else if (label === 'bugs') {
-            section = 'bugs';
-        } else if (['feature','docs','performance'].includes(label)) {
-            section = 'improvements';
-        } else if (['workflow','testing'].includes(label)) {
-            section = 'maybeInternal';
-        } else if (label === 'other') {
-            section = 'other';
-        } else {
-            throw new Error(`Unknown changelog entry label: ${label}`);
-        }
-
-        sections[section].entries.push(entry);
-    }
-
-    return sections;
-}
-
-function parseChangelogEntries(pullRequests) {
-    const entries = [];
-
-    for (const pr of pullRequests) {
-        const label = 'other';
-        const body = pr.body;
-        const entry = {
-            label: label,
-            body: pr.title,
-            pullRequest: pr,
-        };
-        entries.push(entry);
-    }
-
-    return entries;
-}

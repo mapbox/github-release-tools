@@ -12,8 +12,7 @@ module.exports = function renderSections(sections, format = 'md') {
 function renderSectionsMd(sections) {
     let output = '';
 
-    for (const key in sections) {
-        const section = sections[key];
+    for (const section of Object.values(sections)) {
         if  (section.entries.length > 0) {
             output += `## ${section.title}\n`;
             for (const entry of section.entries) {

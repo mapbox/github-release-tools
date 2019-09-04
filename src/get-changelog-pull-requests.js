@@ -24,8 +24,7 @@ module.exports = async function getChangelogPullRequests(octokit, {repo, owner, 
         }
     }
 
-    const categorized = categorizePullRequests(pullRequestsInBranch); 
-    return categorized;
+    return pullRequestsInBranch;
 };
 
 // Equivalent to `git log base..head`
@@ -91,23 +90,4 @@ function detectCherryPicksOfCommitWithinLog(commit, log) {
     });
 
     return found;
-}
-
-function categorizePullRequests(pullRequests) {
-    const hasChangelog = []
-    const skipChangelog = [];
-    const needsChangelog = [];
-
-    for (const pr of pullRequests) {
-        const labelNames = pr.labels.map(l => l.name);
-        if (labelNames.includes('skip changelog')) {
-            skipChangelog.push(pr);
-        } else if (labelNames.includes('needs changelog')) {
-            needsChangelog.push(pr);
-        } else {
-            hasChangelog.push(pr);
-        }
-    }
-
-    return {hasChangelog, needsChangelog, skipChangelog};
 }
