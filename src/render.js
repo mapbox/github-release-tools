@@ -38,7 +38,7 @@ function renderEntryMd(entry) {
 
     let hattip = '';
     if (pr.head.user.login !== pr.base.user.login) {
-        hattip += ` (h/t [${pr.user.login}](${pr.user.url}))`;
+        hattip += ` (h/t [${pr.user.login}](${pr.user.html_url}))`;
     }
 
     const output = `* ${description}${prRef}${hattip}`;
