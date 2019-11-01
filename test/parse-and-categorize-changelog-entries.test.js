@@ -29,17 +29,17 @@ const mockEntries = [
     {
         body: "A changelog feature entry body",
         label: PR_LABELS.feature,
-        pr: {}
+        pullRequest: {}
     },
     {
         body: "A changelog performance entry body",
         label: PR_LABELS.performance,
-        pr: {}
+        pullRequest: {}
     },
     {
         body: "A changelog bug entry body",
         label: PR_LABELS.bug,
-        pr: {}
+        pullRequest: {}
     }
 ]
 
