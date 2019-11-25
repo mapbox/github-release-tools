@@ -1,7 +1,6 @@
 const parse = require('parse-github-url');
 const getRemoteUrl = require('../src/git-remote-url');
 const octokit = require('@octokit/rest')();
-const {execSync} = require('child_process');
 
 module.exports = async function ({target, source}) {
     const {owner, name: repo} = parse(await getRemoteUrl());

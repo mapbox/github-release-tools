@@ -29,7 +29,7 @@ module.exports = {
             let body;
             let matches = pr.body.match(/\<changelog\>(.*)<\/changelog>/);
             if (matches) {
-                body = matches[1]
+                body = matches[1];
             } else {
                 body = pr.title;
             }
@@ -83,13 +83,13 @@ module.exports = {
         for (const entry of entries) {
             let section = Object.values(sections).find((section) => {
                 return section.labels.includes(entry.label);
-            })
+            });
 
             if (!section) {
                 section = sections.unlabeled;
             }
 
-            section.entries.push(entry)
+            section.entries.push(entry);
         }
 
         return sections;
