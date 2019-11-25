@@ -40,8 +40,12 @@ const mockEntries = [
         body: "A changelog bug entry body",
         label: PR_LABELS.bug,
         pullRequest: {}
-    }
-]
+    },
+    {
+        body: "An unlabeled entry body",
+        pullRequest: {}
+    },
+];
 
 
 test('parseEntriesFromPullRequests returns entries', async function(t) {
@@ -79,5 +83,5 @@ test('categorizeEntries', async function(t) {
 
     t.equal(sections.improvements.entries.length, 2);
     t.equal(sections.bugs.entries.length, 1);
-    t.equal(sections.unlabeled.entries.length, 0);
+    t.equal(sections.unlabeled.entries.length, 1);
 });
