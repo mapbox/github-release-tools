@@ -7,6 +7,7 @@ const PR_LABELS = {
     performance: { name: 'performance :zap:' },
     workflow: { name: 'workflow :nail_care:' },
     testing: { name: 'testing :100:' },
+    skip: { name: 'skip changelog' },
 };
 
 module.exports = {
