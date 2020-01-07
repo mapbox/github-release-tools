@@ -23,6 +23,11 @@ const mockPRs = [
         body: 'A fake PR body\nBut also with some <changelog>CHANGELOG ENTRY TEXT</changelog>',
         labels: [ {name: 'performance :zap:'} ]
     },
+    {
+        title: 'This has an empty body entry (which should be ignored).',
+        body: 'A fake PR body\nBut also with an empty <changelog></changelog>',
+        labels: [ {name: 'performance :zap:'} ]
+    },
 ];
 
 const mockEntries = [
@@ -64,6 +69,12 @@ test('parseEntriesFromPullRequests uses optional formatted entries in the body',
     const entries = parseEntriesFromPullRequests(mockPRs);
 
     t.equal(entries[3].body, 'CHANGELOG ENTRY TEXT', 'Entry body not from formatted PR body');
+});
+
+test('parseEntriesFromPullRequests ignores empty entries in the body', async function(t) {
+    const entries = parseEntriesFromPullRequests(mockPRs);
+
+    t.equal(entries[4].body, mockPRs[4].title, 'Entry body not from PR title');
 });
 
 test('parseEntriesFromPullRequests finds a known label type', async function(t) {

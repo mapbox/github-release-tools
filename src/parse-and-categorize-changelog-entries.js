@@ -27,7 +27,7 @@ module.exports = {
             }
 
             let body;
-            let matches = pr.body.match(/\<changelog\>(.*)<\/changelog>/);
+            let matches = pr.body.match(/\<changelog\>(.+)<\/changelog>/);
             if (matches) {
                 body = matches[1];
             } else {
