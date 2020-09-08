@@ -49,17 +49,17 @@ module.exports = {
     categorizeEntries: function(entries) {
         const sections = {
             breaking: {
-                title: 'Breaking changes',
+                title: 'Breaking changes ⚠️',
                 labels: [PR_LABELS.breaking],
                 entries: []
             },
             improvements: {
-                title: 'Features and improvements',
+                title: 'Features ✨ and improvements 🏁',
                 labels: [PR_LABELS.feature, PR_LABELS.docs, PR_LABELS.performance],
                 entries: []
             },
             bugs: {
-                title: 'Bug fixes',
+                title: 'Bug fixes 🐞',
                 labels: [PR_LABELS.bug],
                 entries: []
             },
