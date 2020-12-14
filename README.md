@@ -52,14 +52,32 @@ Options:
 ```
 changelog-draft
 
-Generate a draft changelog entry using changes to master since the most recent
-release.
+Generate a draft changelog entry using changes to the default branch since the most recent
+release. This is done by scanning pull request descriptions for content between
+<changelog></changelog> tags. Below is an example of this format:
+
+`<changelog>Fixes an issue where something would crash.</changelog>`
+
+In addition, if a pull request is labeled with the following tags, the changelog entry 
+will fall under a markdown header associated with that tag's name:
+
+• breaking change ⚠️
+• bug 🐞
+• feature 🍏
+• docs 📜
+• performance ⚡️
+• workflow 💅
+• testing 💯
+• skip changelog
+
+Note: Pull requests with the "skip changelog" tag will not be included in 
+the generated changelog output.
 
 Options:
   --help          Show help                                            [boolean]
   --version       Show version number                                  [boolean]
   -b, --branch    the branch from which this release is being made
-                                                    [string] [default: "master"]
+                                                      [string] [default: "main"]
   -p, --previous  the previous release; defaults to the most recent vX.Y.Z tag
                                                                         [string]
   -f, --format    output format          [choices: "md", "json"] [default: "md"]
@@ -78,7 +96,7 @@ Copies branch protection permissions from one branch to another.
 
 Positionals:
   target  Branch to copy permissions to                                 [string]
-  source  Branch to copy permissions from           [string] [default: "master"]
+  source  Branch to copy permissions from             [string] [default: "main"]
 
 Options:
   --version  Show version number                                       [boolean]

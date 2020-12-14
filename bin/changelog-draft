@@ -5,13 +5,13 @@ const octokit = require('../src/octokit');
 const renderChangelogDraft = require('../src/changelog-draft');
 
 const description =  `\
-Generate a draft changelog entry using changes to master since the most recent release.`;
+Generate a draft changelog entry using changes to main since the most recent release.`;
 
 require('yargs').usage('$0', description, {
     'b': {
         describe: 'the branch from which this release is being made',
         alias: 'current',
-        default: 'master',
+        default: 'main',
         type: 'string'
     },
     'p': {
