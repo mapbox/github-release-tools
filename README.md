@@ -61,13 +61,13 @@ release. This is done by scanning pull request descriptions for content between
 In addition, if a pull request is labeled with the following tags, the changelog entry 
 will fall under a markdown header associated with that tag's name:
 
-• breaking change ⚠️
-• bug 🐞
-• feature 🍏
-• docs 📜
-• performance ⚡️
-• workflow 💅
-• testing 💯
+• breaking change
+• bug
+• feature
+• docs
+• performance
+• workflow
+• testing
 • skip changelog
 
 Note: Pull requests with the "skip changelog" tag will not be included in 
