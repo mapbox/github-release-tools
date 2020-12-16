@@ -13,7 +13,7 @@ require('yargs')
         yargs.positional('source', {
             describe: 'Branch to copy permissions from',
             type: 'string',
-            default: 'master'
+            default: 'main'
         });
     }, require('../src/branch-permissions'))
     .help()
