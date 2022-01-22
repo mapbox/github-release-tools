@@ -1,13 +1,13 @@
-// `name` maps to github PR label name fields
+// 'canonical_name' maps to start of github PR label name fields
 const PR_LABELS = {
-    breaking: { name: 'breaking change :warning:', canonical_name: 'breaking change' },
-    bug: { name: 'bug :beetle:', canonical_name: 'bug' },
-    feature: { name: 'feature :green_apple:', canonical_name: 'feature' },
-    docs: { name: 'docs :scroll:', canonical_name: 'docs' },
-    performance: { name: 'performance :zap:', canonical_name: 'performance' },
-    workflow: { name: 'workflow :nail_care:', canonical_name: 'build' },
-    testing: { name: 'testing :100:', canonical_name: 'testing' },
-    skip: { name: 'skip changelog', canonical_name: 'skip changelog' },
+    breaking: { canonical_name: 'breaking change' },
+    bug: { canonical_name: 'bug' },
+    feature: { canonical_name: 'feature' },
+    docs: { canonical_name: 'docs' },
+    performance: { canonical_name: 'performance' },
+    workflow: { canonical_name: 'build', alternative_name: 'workflow :nail_care:' },
+    testing: { canonical_name: 'testing' },
+    skip: { canonical_name: 'skip changelog' }
 };
 
 module.exports = {
@@ -21,7 +21,8 @@ module.exports = {
 
             let foundLabel;
             for (const label of Object.values(PR_LABELS)) {
-                if (labelNames.includes(label.name) || labelNames.includes(label.canonical_name)) {
+                if (labelNames.some(l => l.startsWith(label.canonical_name))
+                || labelNames.includes(label.alternative_name)) {
                     foundLabel = label;
                 }
             }
