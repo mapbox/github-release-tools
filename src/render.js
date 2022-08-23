@@ -14,9 +14,9 @@ function renderSectionsMd(sections) {
 
     for (const section of Object.values(sections)) {
         if  (section.entries.length > 0) {
-            output += `## ${section.title}\n`;
+            output += `### ${section.title}\n`;
             for (const entry of section.entries) {
-                output += renderEntryMd(entry)
+                output += renderEntryMd(entry);
                 output += '\n';
             }
             output += '\n\n';
