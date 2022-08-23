@@ -29,6 +29,7 @@ module.exports = {
 
             let body = pr.title;
             if (pr.body){
+                // eslint-disable-next-line no-useless-escape
                 let matches = pr.body.match(/\<changelog\>(.+)<\/changelog>/);
                 if (matches) {
                     body = matches[1];
