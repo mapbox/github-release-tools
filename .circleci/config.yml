@@ -1,24 +1,29 @@
 version: 2.1
-orbs:
-  node: circleci/node@5.0.3
 
 jobs:
   build_and_test:
-    executor: node/default
+    docker:
+      - image: cimg/node:9.0.0
     steps:
       - checkout
-      - node/install-packages:
-        pkg-manager: yarn
+      - restore_cache:
+        key: v1-deps-{{ checksum "package-lock.json" }}
+      - run: yarn
+      - save_cache:
+          key: v1-deps-{{ checksum "package-lock.json" }}
+          paths: 
+            - node_modules  
       - run:
           name: Install mbx-ci
           command: |
             curl -Ls https://mapbox-release-engineering.s3.amazonaws.com/mbx-ci/latest/mbx-ci-linux-amd64 > mbx-ci &&
             chmod 755 ./mbx-ci
       - run:
-          name: Authenticate mbx-ci and run tests
-          command: |
-            export GITHUB_TOKEN=$(./mbx-ci github reader token)
-            yarn test
+          name: Authenticate mbx-ci
+          command: export GITHUB_TOKEN=$(./mbx-ci github reader token)
+      - run:
+          name: Run tests
+          command: yarn test
 
 workflows:
   test_github_release_tools:
