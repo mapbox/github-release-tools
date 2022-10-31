@@ -12,5 +12,5 @@ test('getLatestRelease', async function(t) {
 
     const latest = await getLatestRelease(octokit, {repo, owner});
 
-    t.equal(latest, "v1.12.0", "Latest release version");
+    t.equal(latest, "v2.10.0", "Latest release version");
 });
