@@ -7,9 +7,13 @@ jobs:
     executor: node/default
     steps:
       - checkout
-      - curl -Ls https://mapbox-release-engineering.s3.amazonaws.com/mbx-ci/latest/mbx-ci-linux-amd64 > mbx-ci && chmod 755 ./mbx-ci
       - node/install-packages:
         pkg-manager: yarn
+      - run:
+          name: Install mbx-ci
+          command: |
+            curl -Ls https://mapbox-release-engineering.s3.amazonaws.com/mbx-ci/latest/mbx-ci-linux-amd64 > mbx-ci &&
+            chmod 755 ./mbx-ci
       - run:
           name: Authenticate mbx-ci and run tests
           command: |
