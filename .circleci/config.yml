@@ -24,8 +24,8 @@ jobs:
       - run:
           name: Authenticate mbx-ci and run tests
           command: |
-          export GITHUB_TOKEN=$(./mbx-ci github reader token)
-          yarn test
+            export GITHUB_TOKEN=$(./mbx-ci github reader token)
+            yarn test
 
 workflows:
   test_github_release_tools:
