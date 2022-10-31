@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        key: v1-deps-{{ checksum "package-lock.json" }}
+          key: v1-deps-{{ checksum "package-lock.json" }}
       - run: yarn
       - save_cache:
           key: v1-deps-{{ checksum "package-lock.json" }}
