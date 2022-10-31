@@ -22,11 +22,10 @@ jobs:
             curl -Ls https://mapbox-release-engineering.s3.amazonaws.com/mbx-ci/latest/mbx-ci-linux-amd64 > mbx-ci &&
             chmod 755 ./mbx-ci
       - run:
-          name: Authenticate mbx-ci
-          command: export GITHUB_TOKEN=$(./mbx-ci github reader token)
-      - run:
-          name: Run tests
-          command: yarn test
+          name: Authenticate mbx-ci and run tests
+          command: |
+          export GITHUB_TOKEN=$(./mbx-ci github reader token)
+          yarn test
 
 workflows:
   test_github_release_tools:
