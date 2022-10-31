@@ -1,11 +1,9 @@
 version: 2.1
-orbs:
-  node: circleci/node@5.0.3
 
 jobs:
   build_and_test:
     docker:
-      - image: 'cimg/base:stable'
+      - image: circleci/node:10
     steps:
       - checkout
       - restore_cache:
