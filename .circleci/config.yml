@@ -1,0 +1,31 @@
+version: 2.1
+
+jobs:
+  build_and_test:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - save_cache:
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths: 
+            - ~/.cache/yarn
+      - run:
+          name: Authenticate mbx-ci and run tests
+          command: |
+            curl -Ls https://mapbox-release-engineering.s3.amazonaws.com/mbx-ci/latest/mbx-ci-linux-amd64 > mbx-ci &&
+            chmod 755 ./mbx-ci
+            export MBX_CI_DOMAIN=o619qyc20d.execute-api.us-east-1.amazonaws.com
+            export GITHUB_TOKEN=$(./mbx-ci github reader token)
+            yarn test
+
+workflows:
+  test_github_release_tools:
+    jobs:
+      - build_and_test
