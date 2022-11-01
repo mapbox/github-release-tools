@@ -58,7 +58,7 @@ async function findMergeBase(octokit, {owner, repo, base, head}) {
 }
 
 async function fetchMergedPullRequestsSinceDate(octokit, {repo, owner, since}) {
-    let response = await octokit.pullRequests.list({
+    let response = await octokit.pullRequests.getAll({
         owner,
         repo,
         state: 'closed',
