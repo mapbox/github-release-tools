@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "test": "tap test/**/*.test.js"
+    "test": "tap --timeout 120000 test/**/*.test.js"
   },
   "dependencies": {
     "@octokit/rest": "^15.2.7",

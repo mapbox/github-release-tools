@@ -66,6 +66,7 @@ async function fetchMergedPullRequestsSinceDate(octokit, {repo, owner, since}) {
         direction: 'desc',
         per_page: 100
     });
+
     let {data} = response;
     while (data[data.length - 1].updated_at > since && octokit.hasNextPage(response)) {
         response = await octokit.getNextPage(response);

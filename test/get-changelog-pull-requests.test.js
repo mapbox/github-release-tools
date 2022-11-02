@@ -30,7 +30,6 @@ test('getChangeLogPullRequests filters out PRs cherry picked to the previous rel
         repo, owner, previous, current
     });
 
+    
     t.equal(pullRequests.length, 41, 'Pull request count incorrect');
 });
-
-test('getChangeLogPullRequests filters out PRs merged but then reverted');
