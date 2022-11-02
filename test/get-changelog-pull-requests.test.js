@@ -16,7 +16,7 @@ test('getChangelogPullRequests finds all relevant pull requests', async function
         repo, owner, previous, current
     });
 
-    t.equal(pullRequests.length, 20, 'Pull request count incorrect');
+    test('check result', async t => t.equal(pullRequests.length, 20, 'Pull request count incorrect'));
 });
 
 test('getChangeLogPullRequests filters out PRs cherry picked to the previous release', async function(t) {
@@ -30,5 +30,6 @@ test('getChangeLogPullRequests filters out PRs cherry picked to the previous rel
         repo, owner, previous, current
     });
 
-    t.equal(pullRequests.length, 41, 'Pull request count incorrect');
+    
+    test('check result', async t => t.equal(pullRequests.length, 41, 'Pull request count incorrect'));
 });
