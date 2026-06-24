@@ -1,6 +1,6 @@
 {
   "name": "@mapbox/github-release-tools",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "engines": {
     "node": ">=8"
   },
@@ -26,5 +26,8 @@
     "eslint": "^4.19.1",
     "mock-fs": "^4.10.0",
     "tap": "^11.1.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
